@@ -82,6 +82,9 @@ RUN mkdir -p ~/.ssh
 RUN touch ~/.ssh_config
 RUN mkdir -p /build
 
+# Customize bash prompt
+sed -i '/[ -z \"PS1\" ] && return/a\\ncase $- in\n*i*) ;;\n*) return;;\nesac' /root/.bashrc
+
 # Set working directory and entrypoint
 WORKDIR /build
 ENTRYPOINT /bin/bash
