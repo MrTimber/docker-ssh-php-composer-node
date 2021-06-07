@@ -1,12 +1,18 @@
 FROM ubuntu:18.04
 
-ENV TZ="Europe/Paris"
+# Set default file encoding to UTF-8
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    LANGUAGE=C.UTF-8
 
-RUN export LC_ALL=C.UTF-8
-RUN DEBIAN_FRONTEND=noninteractive
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+# Set timezone to Europe/Paris
+ARG TZ="Europe/Paris"
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# Use non interactive mode during the build
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Install base dependencies
 RUN apt-get update
 RUN apt-get install -y \
     sudo \
@@ -29,9 +35,7 @@ RUN apt-get install -y \
     libpng-dev \
     libpng16-16
 
-RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
-
-# PHP
+# PHP 7.4
 RUN LC_ALL=en_US.UTF-8 add-apt-repository ppa:ondrej/php && apt-get update && apt-get install -y php7.4
 RUN apt-get install -y \
     php7.4-curl \
@@ -60,19 +64,23 @@ RUN mv composer.phar /usr/local/bin/composer && \
     composer self-update
 RUN command -v composer
 
-# Node.js
+# Node.js 14 and npm 6
 RUN curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 RUN sudo apt-get install -y nodejs
 RUN npm install npm@6 -g
 RUN command -v node
 RUN command -v npm
 
-# Other
-RUN mkdir ~/.ssh
-RUN touch ~/.ssh_config
-
 # Display versions installed
 RUN php -v
 RUN composer --version
 RUN node -v
 RUN npm -v
+
+# Create directories
+RUN mkdir -p ~/.ssh
+RUN mkdir -p /build
+
+# Set working directory and entrypoint
+WORKDIR /build
+ENTRYPOINT /bin/bash
