@@ -1,2 +1,3 @@
-# docker-ssh-php-composer-node
-Docker images with SSH, PHP, Composer, Node
+# Docker images with SSH, PHP, Composer, Node
+
+Inspired of https://github.com/vyuldashev/docker-ci-php-node
