@@ -83,10 +83,10 @@ RUN touch ~/.ssh_config
 RUN mkdir -p /opt/atlassian/bitbucketci/agent/build
 
 # Customize root bash prompt
-sed -i '/[ -z \"PS1\" ] && return/a\\ncase $- in\n*i*) ;;\n*) return;;\nesac' /root/.bashrc
+RUN sed -i '/[ -z \"PS1\" ] && return/a\\ncase $- in\n*i*) ;;\n*) return;;\nesac' /root/.bashrc
 
 # Creates pipelines user
-useradd --create-home --shell /bin/bash --uid 1000 pipelines
+RUN useradd --create-home --shell /bin/bash --uid 1000 pipelines
 
 # Set working directory and entrypoint
 WORKDIR /opt/atlassian/bitbucketci/agent/build
