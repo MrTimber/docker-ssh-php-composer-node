@@ -1,75 +1,58 @@
-FROM ubuntu:18.04
-
-# Set default file encoding to UTF-8
-ENV LANG=C.UTF-8 \
-    LC_ALL=C.UTF-8 \
-    LANGUAGE=C.UTF-8
-
-# Set timezone to Europe/Paris
-ARG TZ="Europe/Paris"
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+FROM debian:buster-slim
 
 # Use non interactive mode during the build
 ARG DEBIAN_FRONTEND=noninteractive
 
+# Set locale
+ENV LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8
+RUN apt-get update && apt-get install -y \
+    locales \
+    && rm -rf /var/lib/apt/lists/*
+RUN sed -i -e "s/# $LANG.*/$LANG UTF-8/" /etc/locale.gen \
+    && locale-gen \
+    && dpkg-reconfigure locales \
+    && update-locale LANG=$LANG
+
+# Set timezone
+ARG TZ="Europe/Paris"
+RUN apt-get update && apt-get install -y \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && dpkg-reconfigure tzdata
+
 # Install base dependencies
-RUN apt-get update
-RUN apt-get install -y \
-    sudo \
-    autoconf \
-    autogen \
-    language-pack-en-base \
-    wget \
-    zip \
-    unzip \
-    curl \
-    rsync \
-    ssh \
-    openssh-client \
-    git \
+RUN apt-get update && apt-get install -y \
     build-essential \
-    apt-utils \
-    software-properties-common \
-    nasm \
-    libjpeg-dev \
-    libpng-dev \
-    libpng16-16
+    curl \
+    git \
+    iputils-ping \
+    openssh-client \
+    rsync \
+    wget \
+    zip unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# PHP
-RUN LC_ALL=en_US.UTF-8 add-apt-repository ppa:ondrej/php && apt-get update && apt-get install -y php7.3
-RUN apt-get install -y \
-    php7.3-curl \
-    php7.3-gd \
-    php7.3-dev \
-    php7.3-xml \
-    php7.3-bcmath \
-    php7.3-mysql \
-    php7.3-pgsql \
-    php7.3-mbstring \
-    php7.3-zip \
-    php7.3-bz2 \
-    php7.3-sqlite \
-    php7.3-soap \
-    php7.3-json \
-    php7.3-intl \
-    php7.3-imap \
-    php7.3-imagick \
-    php-memcached
-RUN command -v php
+# Install PHP 7.3
+RUN apt-get update && apt-get install -y \
+    php7.3 php7.3-cli php7.3-common \
+    && rm -rf /var/lib/apt/lists/*
 
-# Composer
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php
-RUN mv composer.phar /usr/local/bin/composer && \
-    chmod +x /usr/local/bin/composer && \
-    composer self-update
-RUN command -v composer
+RUN mv composer.phar /usr/local/bin/composer \
+    && chmod +x /usr/local/bin/composer \
+    && composer self-update
 
-# Node.js 14 and npm 6
-RUN curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-RUN sudo apt-get install -y nodejs
+# Install Node.js 14, npm 6 and gulp-cli
+RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get update && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 RUN npm install npm@6 -g
-RUN command -v node
-RUN command -v npm
+RUN npm install -g gulp-cli
 
 # Display versions installed
 RUN php -v
