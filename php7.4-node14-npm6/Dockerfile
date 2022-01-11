@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM debian:buster-slim
 
 # Use non interactive mode during the build
