@@ -53,6 +53,7 @@ RUN apt-get update && apt-get install -y \
     php7.3-intl \
     php7.3-gd \
     php7.3-imagick \
+    php7.3-soap \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer

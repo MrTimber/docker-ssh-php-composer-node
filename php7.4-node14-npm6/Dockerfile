@@ -58,6 +58,7 @@ RUN apt-get update && apt-get install -y \
     php7.4-intl \
     php7.4-gd \
     php7.4-imagick \
+    php7.4-soap \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
